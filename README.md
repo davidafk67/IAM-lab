@@ -86,12 +86,12 @@ Below is the structured walkthrough of the project implementation using the reco
 
 | Step | Objective | Technical Action | Visual Reference |
 | :--- | :--- | :--- | :--- |
-| **01** | Enable OTP Factor | Toggled Authenticator App factor to an active state. | ![OTP Factor Activation]<img width="1037" height="141" alt="1" src="https://github.com/user-attachments/assets/be5b0f2c-f3c9-484c-ad3b-2302a1ce8dd4" /> |
-| **02** | Configure Governance Policy | Bound the tenant to require a second factor on every transaction. | ![Always Require Policy Configuration]<img width="842" height="448" alt="2" src="https://github.com/user-attachments/assets/b9adc0e0-1e09-4ec7-83b0-19534702b842" /> |
-| **03** | Sandbox Initialization | Initialized the IdP directory transaction tool (`Try Connection`). | ![Database Connection Trial Launch]<img width="903" height="205" alt="3" src="https://github.com/user-attachments/assets/d765ee70-a3e3-458f-b036-71e6eb43b7b6" /> |
+| **01** | Enable OTP Factor | Toggled Authenticator App factor to an active state. | <img width="1037" height="141" alt="1" src="https://github.com/user-attachments/assets/be5b0f2c-f3c9-484c-ad3b-2302a1ce8dd4" /> |
+| **02** | Configure Governance Policy | Bound the tenant to require a second factor on every transaction. | <img width="842" height="448" alt="2" src="https://github.com/user-attachments/assets/b9adc0e0-1e09-4ec7-83b0-19534702b842" /> |
+| **03** | Sandbox Initialization | Initialized the IdP directory transaction tool (`Try Connection`). | <img width="903" height="205" alt="3" src="https://github.com/user-attachments/assets/e541824b-a48d-47cc-9ca9-3a51bec9cc02" /> |
 | **04** | Baseline Test | Confirmed normal user profile mapping prior to strict policy enforcement. | <img width="733" height="554" alt="4" src="https://github.com/user-attachments/assets/cb3f352d-678b-4025-b565-e501a8a9dc2d" /> |
-| **05** | Policy Update Enforcement | Validated that the global multi-factor constraints were securely deployed. | ![Policy State Verification]<img width="897" height="438" alt="5" src="https://github.com/user-attachments/assets/9514aa67-72b1-4a0d-818c-a87c0ec6da57" /> |
-| **06** | Universal Login Interception | Verified the operational security layer actively forcing TOTP enrollment. | ![MFA QR Code Enrollment Prompt]<img width="505" height="641" alt="6" src="https://github.com/user-attachments/assets/c38dd6c5-e50b-4c50-838a-520ab2762a74" /> |
+| **05** | Policy Update Enforcement | Validated that the global multi-factor constraints were securely deployed. | <img width="897" height="438" alt="5" src="https://github.com/user-attachments/assets/9514aa67-72b1-4a0d-818c-a87c0ec6da57" /> |
+| **06** | Universal Login Interception | Verified the operational security layer actively forcing TOTP enrollment. | <img width="505" height="641" alt="6" src="https://github.com/user-attachments/assets/c38dd6c5-e50b-4c50-838a-520ab2762a74" /> |
 | **07** | Transaction Resolution | Confirmed identity validation completeness after processing the flow. | <img width="747" height="510" alt="7" src="https://github.com/user-attachments/assets/b4cb701d-d8bc-481b-94e0-de25ec2b4c25" /> |
 
 ---
