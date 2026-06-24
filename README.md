@@ -145,14 +145,14 @@ Below is the chronological execution path validating the federation loop from in
 
 | Step | Objective | Technical Action / Log State | Visual Reference |
 | --- | --- | --- | --- |
-| **01** | Dependency Staging | Compiled `authlib` and `python-dotenv` packages into the local ecosystem. |  |
-| **02** | Microservice Bootstrap | Initialized the local Flask daemon bound to interface port `3000`. |  |
-| **03** | Interface Baseline | Accessed the root edge mapping an unauthenticated state (`Welcome Guest`). |  |
-| **04** | Handshake Failure (Audit) | Intercepted an **HTTP 500** crash caused by null variables from `.env.example`. |  |
+| **01** | Dependency Staging | Compiled `authlib` and `python-dotenv` packages into the local ecosystem. | <img width="674" height="341" alt="16" src="https://github.com/user-attachments/assets/7ff6276b-3984-41a0-80d3-f309239aed74" /> |
+| **02** | Microservice Bootstrap | Initialized the local Flask daemon bound to interface port `3000`. | <img width="666" height="231" alt="17" src="https://github.com/user-attachments/assets/1b8aeeb1-1883-48a9-8051-45bdb10b1940" /> |
+| **03** | Interface Baseline | Accessed the root edge mapping an unauthenticated state (`Welcome Guest`). | <img width="494" height="194" alt="12" src="https://github.com/user-attachments/assets/0a643b30-1e28-4dcb-bfa9-b8ac0d02885c" /> |
+| **04** | Handshake Failure (Audit) | Intercepted an **HTTP 500** crash caused by null variables from `.env.example`. | <img width="488" height="240" alt="18" src="https://github.com/user-attachments/assets/3ccc9c02-944c-4d9a-8682-658b95061406" /> |
 | **05** | IDE Context Block | Isolated a secondary workspace block preventing console runtime injection. |  |
-| **06** | IdP Interception | Applied environment patches; application successfully delegated routing to the Auth0 login portal. |  |
-| **07** | Step-Up Policy Check | Verified the application natively inherited the **MFA / TOTP** boundary engineered in Project 02. |  |
-| **08** | Payload Parsing | Resolved transaction; the token returned an authenticated state exposing verified profile metadata. |  |
+| **06** | IdP Interception | Applied environment patches; application successfully delegated routing to the Auth0 login portal. | <img width="480" height="475" alt="13" src="https://github.com/user-attachments/assets/8e8dfc92-8bce-43bf-9cd7-8e5008e75a75" /> |
+| **07** | Step-Up Policy Check | Verified the application natively inherited the **MFA / TOTP** boundary engineered in Project 02. | <img width="471" height="412" alt="14" src="https://github.com/user-attachments/assets/802f70e8-29a2-41e3-8c84-522ae9fa92db" /> |
+| **08** | Payload Parsing | Resolved transaction; the token returned an authenticated state exposing verified profile metadata. | <img width="1366" height="626" alt="15" src="https://github.com/user-attachments/assets/ec3b1de7-e54f-494a-a352-6d70d01b7cfd" /> |
 
 ---
 
