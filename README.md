@@ -100,6 +100,7 @@ Below is the structured walkthrough of the project implementation using the reco
 * [ ] Federate a test application for Single Sign-On (SSO) workflows using OIDC/SAML protocols.
 * [ ] Implement conditional access policies to trigger step-up authentication based on risk vectors.
 
+
 ## 🛡️ Project 03: Federating a Web Application for OIDC Single Sign-On (SSO) & MFA Validation
 
 ### 📝 Project Overview
@@ -112,5 +113,76 @@ This project demonstrates the complete federation of a local **Python Flask** we
 * **Advanced Token Analysis & Troubleshooting:** Investigating HTTP 500 error states and parsing OIDC ID Tokens for cryptographic verification claims (`amr`).
 
 ---
+
+### 🚀 Implementation Phases
+
+#### 1. Identity Provider Service Provisioning
+A dedicated client descriptor profile named **OnFlame** was provisioned inside the Auth0 Dashboard as a *Regular Web Application*. During this phase, security boundaries were established by locking allowed callback targets strictly to the application's local runtime interface (`http://localhost:3000/callback`).
+
+#### 2. Service Provider Initialization & Environment Hardening
+The application microservice template was deployed locally. Dependencies, including the secure OAuth integration engine (`authlib`) and the environment injection parser (`python-dotenv`), were compiled natively via the package manager:
+```bash
+pip install -r requirements.txt
+
+```
+
+The application core was architecture-designed to extract identity properties from the local runtime stack, leveraging the `find_dotenv()` loop to keep credentials fully isolated from the codebase.
+
+#### 3. Execution, Error Ingestion & Troubleshooting
+
+Upon initializing the backend engine using `python server.py`, an immediate structural breakdown occurred when routing transactions to `/login`, triggering consecutive **HTTP 500 Internal Server Error** breaks.
+
+Two root causes were successfully isolated and resolved through technical auditing:
+
+* **IDE Enforcement Constraints:** The development suite actively blocked automatic context injection, throwing a `terminal environment injection is disabled` fault. This required shifting execution paths to use absolute localized file targets.
+* **Extension Mismatch (Plantilla Error):** The upstream repository bundled configuration parameters inside a `.env.example` template. Because of the `.example` extension, the initialization framework parsed values as null (`None`), breaking metadata synchronization. Renaming the asset strictly to `.env` resolved the handshake.
+
+---
+
+### 📊 Technical Evidence (Application Federation)
+
+Below is the chronological execution path validating the federation loop from initial dependency staging to identity validation:
+
+| Step | Objective | Technical Action / Log State | Visual Reference |
+| --- | --- | --- | --- |
+| **01** | Dependency Staging | Compiled `authlib` and `python-dotenv` packages into the local ecosystem. |  |
+| **02** | Microservice Bootstrap | Initialized the local Flask daemon bound to interface port `3000`. |  |
+| **03** | Interface Baseline | Accessed the root edge mapping an unauthenticated state (`Welcome Guest`). |  |
+| **04** | Handshake Failure (Audit) | Intercepted an **HTTP 500** crash caused by null variables from `.env.example`. |  |
+| **05** | IDE Context Block | Isolated a secondary workspace block preventing console runtime injection. |  |
+| **06** | IdP Interception | Applied environment patches; application successfully delegated routing to the Auth0 login portal. |  |
+| **07** | Step-Up Policy Check | Verified the application natively inherited the **MFA / TOTP** boundary engineered in Project 02. |  |
+| **08** | Payload Parsing | Resolved transaction; the token returned an authenticated state exposing verified profile metadata. |  |
+
+---
+
+### 🔍 Cryptographic Validation (ID Token Claim Audit)
+
+Upon successful authentication resolution, the cryptographic payload signature returned by the Identity Provider was audited to verify enforcement compliance:
+
+```json
+{
+  "userinfo": {
+    "acr": "[http://schemas.openid.net/pape/policies/2007/06/multi-factor](http://schemas.openid.net/pape/policies/2007/06/multi-factor)",
+    "amr": [
+      "mfa"
+    ],
+    "email": "milechitac@gmail.com",
+    "email_verified": true
+  }
+}
+
+```
+
+* **`"amr": ["mfa"]` Claim:** The *Authentication Methods Reference* claim provides strict, immutable cryptographic proof that the downstream service provider successfully intercepted the identity loop and verified the secondary TOTP factor before granting authorization.
+
+---
+
+### 📈 Next Steps for this Sandbox
+
+* [ ] Automate user provisioning using Python scripts via the Auth0 Management API.
+* [ ] Implement OAuth 2.0 Scopes to enforce fine-grained API Authorization boundaries.
+
+
 
 
