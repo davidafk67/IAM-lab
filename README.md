@@ -184,5 +184,81 @@ Upon successful authentication resolution, the cryptographic payload signature r
 * [ ] Implement OAuth 2.0 Scopes to enforce fine-grained API Authorization boundaries.
 
 
+## 🛡️ Project 04: Engineering Fine-Grained RBAC & API Authorization Limits via OAuth 2.0 Scopes
+
+### 📝 Project Overview
+This project demonstrates the transition from basic identity verification (Authentication) to strict resource control (Authorization). By deploying a **Role-Based Access Control (RBAC)** architecture, a local Python Flask web application was configured to act as a secure **Resource Server**. The backend microservice was hardened using custom Python middleware to parse cryptographically signed Access Tokens, intercept incoming HTTP traffic, and enforce access boundaries based on custom OAuth 2.0 claims (`scopes`), successfully mitigating privilege creep.
+
+### 🛠️ Core Skills & Concepts Applied
+* **API Access Management:** Registering cryptographic resource servers to decouple business logic permissions from the Identity Provider.
+* **OAuth 2.0 Scope Enforcement:** Requesting and verifying granular permissions (`read:admin-dashboard`) within active runtime sessions.
+* **Python Metaprogramming (Decorators):** Engineering reusable security middleware functions (`@requires_scope`) to protect application routing layers.
+* **Advanced Code Auditing & Troubleshooting:** Resolving cross-origin trust failures, handling client assignment mismatches, and managing HTTP 403 vs 404 response states.
+
+---
+
+### 🚀 Implementation Phases
+
+#### 1. Identity Provider API & Role Architecture
+A dedicated Resource Server representing the internal enterprise API (`https://onflame.api`) was provisioned inside the Identity Provider (IdP) control panel. Two structural user roles were engineered to test the directory boundary:
+* **`Admin`:** Bound tightly to the custom administrative scope entitlement (`read:admin-dashboard`).
+* **`Employee`:** Maintained as a baseline security boundary without specialized permissions.
+
+#### 2. Middleware Implementation & Environment Configuration
+The Python Flask backend was refactored to register the remote audience identifier inside the runtime system state. To enforce these constraints programmatically without polluting local business routing logic, a custom Python decorator function was engineered to inspect the encrypted runtime data pipeline:
+
+```python
+def requires_scope(required_scope):
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            user = session.get("user")
+            if not user:
+                return redirect(url_for("login"))
+            user_scopes = user.get("scope", "")
+            if required_scope not in user_scopes.split():
+                abort(403)
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
+
+```
+
+#### 3. Forensic Debugging & Handshake Troubleshooting
+
+During the integration loop, several operational breakdowns occurred and were systematically resolved through logging analysis:
+
+* **The `abort` Name Resolution Fault:** The IDE static analyzer caught an undefined variable block due to a missing framework import, requiring an update to the core Flask import declaration.
+* **The Architecture Freezing Block (HTTP 404 Error):** Protected endpoints were initially appended below the server lifecycle listener invocation (`app.run`), rendering the operational hooks invisible to the daemon routing tree. Re-ordering core controller definitions resolved the system visibility block.
+* **The API Access Client Trust Mismatch (OAuthError):** The local framework failed the back-channel exchange protocol, throwing an `invalid_request: Client is not authorized to access resource server` exception. This was fixed by modifying the Auth0 console to authorize the Client App profile to request tokens from the newly generated API resource plane.
+
+---
+
+### 📊 Technical Evidence (Chronological Implementation & Verification)
+
+Below is the structured walkthrough of the authorization enforcement loop and token claim behavior using the recorded audit trail:
+
+| Step | Objective | Technical Action / Log State | Visual Reference |
+| --- | --- | --- | --- |
+| **01** | **Role Engineering** | Generated the custom `Admin` containment boundary inside the User Management module. | <img width="846" height="299" alt="1" src="https://github.com/user-attachments/assets/aaa7719d-2520-4672-8fe7-95b237a54748" /> |
+| **02** | **Permission Assignment** | Mapped the granular `read:admin-dashboard` scope from the Resource Server into the Admin role matrix. | <img width="795" height="474" alt="2" src="https://github.com/user-attachments/assets/ca1c730d-6a99-4dd6-88cf-8b501907aa92" /> |
+| **03** | **Identity Assignment** | Provisioned the test users and bound the target account to the newly deployed administrative profile. | <img width="468" height="396" alt="3" src="https://github.com/user-attachments/assets/15389e23-79d1-4183-8a2d-9bb10d098daa" /> |
+| **04** | **Static IDE Analysis** | Caught and corrected an undefined reference exception (`"abort" is not defined`) inside the decorator logic. | <img width="1148" height="448" alt="8862302b-fa16-4d41-a95f-5e45de2854af" src="https://github.com/user-attachments/assets/9e9d3d60-e98b-44a2-bfbc-dc562029e5a9" /> |
+| **05** | **Application Freeze Audit** | Isolated an HTTP 404 routing failure caused by placing controllers below the live system execution block. | <img width="631" height="423" alt="cea60d21-525c-41df-9d34-729ae781235c" src="https://github.com/user-attachments/assets/433e0df3-236a-4a58-b897-76bcca76b3a6" /> |
+| **06** | **Handshake Trust Breakdown** | Intercepted an `OAuthError (invalid_request)` during the OIDC callback loop due to an unauthorized API relation. | <img width="1366" height="711" alt="13c57cdb-619a-42aa-8fc0-6c5aadf7a706" src="https://github.com/user-attachments/assets/89ba024b-6cbe-443d-ae75-5f7ae715b335" /> |
+| **07** | **Client API Authorization** | Linked the OIDC application client to the Resource Server plane, authorizing the scope transmission. | <img width="496" height="366" alt="11" src="https://github.com/user-attachments/assets/7ddcb506-c869-4726-bd06-3f3091559e8a" /> |
+| **08** | **Unprivileged Token Ingestion** | User with employee role resolved authentication successfully; payload structure was strictly limited to default profile scopes. | <img width="511" height="509" alt="d61e0d1c-f10c-4ae3-8c33-68ff8ee5a47c" src="https://github.com/user-attachments/assets/ecbb1853-f753-454a-8f84-c6f5d8edf66e" /> |
+| **09** | **Privileged Token Ingestion** | User admin role completed the loop; the IdP successfully appended the elevated permission: `"scope": "... read:admin-dashboard"`. | <img width="513" height="513" alt="49c88592-6885-42d2-b162-0318aeb031bf" src="https://github.com/user-attachments/assets/916cb8a5-daa0-4da1-9088-ea233f6b4b3f" /> |
+| **10** | **Perimeter Enforcement Test** | The unprivileged account attempted a forced URL traversal attack to `/admin`. The backend middleware intercepted the transaction and threw an **HTTP 403 Forbidden** block. | <img width="600" height="195" alt="23" src="https://github.com/user-attachments/assets/3df4365e-75f9-4cf3-b462-9a7920fb7afd" /> |
+| **11** | **Access Resolution Validation** | The privileged account navigated to the restricted zone. The middleware validated the signature token, granting entry to the critical zone. | <img width="569" height="180" alt="22" src="https://github.com/user-attachments/assets/b1b195bd-b230-4551-9f7a-76eae8c766f5" /> |
+
+---
+
+### 📈 Next Steps for this Sandbox
+
+* [ ] Shift from static local user management to programmatic **Identity Lifecycle Management** utilizing the Auth0 Management API.
+* [ ] Automate user ingestion models (*Joiner/Mover/Leaver Scenarios*) using independent Python administrative tool scripts.
+
+
 
 
