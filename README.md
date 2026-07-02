@@ -260,5 +260,54 @@ Below is the structured walkthrough of the authorization enforcement loop and to
 * [ ] Automate user ingestion models (*Joiner/Mover/Leaver Scenarios*) using independent Python administrative tool scripts.
 
 
+## 🛡️ Project 05: Programmatic Identity Lifecycle Automation via Machine-to-Machine (M2M) Management APIs
 
+### 📝 Project Overview
+This project demonstrates the transition from human-interactive login flows to fully automated, non-interactive **Identity Governance**. By engineering a detached Python administrative tool, a secure **Machine-to-Machine (M2M)** integration model was established using the OAuth 2.0 **Client Credentials Grant**. The script interfaces directly with the remote cloud **Auth0 Management API**, programmatically orchestrating the onboarding (*Joiner Process*) and immediate automated account suspension (*Leaver Process*) to mitigate the risk of stale or orphan accounts.
+
+### 🛠️ Core Skills & Concepts Applied
+* **Machine-to-Machine (M2M) Frameworks:** Bypassing standard user interfaces via cryptographically verified daemon-to-server connection paths.
+* **OAuth 2.0 Client Credentials Grant:** Securing short-lived administrative Access Tokens by authenticating explicit backend client credentials.
+* **Granular API Scoping Rules:** Isolating execution risks by authorizing only the bare operational permissions required (`create:users`, `read:users`, `update:users`).
+* **Automated Identity Suspension (DevOps Lifecycle):** Manipulating tenant state registries using programmatic REST methods (HTTP `POST` for account ingest, HTTP `PATCH` for directory freezes).
+
+---
+
+### 🚀 Implementation Phases
+
+#### 1. Non-Interactive Client Provisioning & Least Privilege Scoping
+A dedicated machine-to-machine application descriptor named `OnFlame Admin Tool` was provisioned within the IdP dashboard. To prevent supply-chain or infrastructure compromise vectors, access boundaries were tightly isolated by explicitly blocking global structural permissions, registering instead an exact permission matrix targeted strictly to user account lifecycle operations.
+
+#### 2. Environment Hardening & Audience Identification
+The administrative tool environment file was updated to handle the decoupled variables. During baseline testing loops, an immediate handshake trust breakdown occurred when attempting token requests, throwing an **`access_denied: Service not enabled within domain`** restriction. 
+
+Auditing the script trace revealed that the Identity Provider actively rejected the validation payload because the requested metadata plane (`audience`) was misconfigured as a raw naked domain string rather than matching the strict cryptographically defined URI required by the remote API controller (`https://<domain>/api/v2/`). Correcting this variable within the context plane resolved the cryptographic mismatch.
+
+#### 3. Complete Lifecycle Automation Loop (Joiner & Leaver Execution)
+The administrative framework code was compiled using a two-tier sequential automation scheme:
+* **The Joiner Logic:** The script requests a token, builds an ingest payload containing profile arrays, and submits an HTTP `POST` request to the directory root, triggering an immediate account provision state (`201 Created`) along with an out-of-band validation email routing sequence.
+* **The Leaver Logic:** Upon a successful account creation block, the handler captures the resulting system-generated Unique User ID (`auth0|...`) dynamically. It then intercepts the user state by pushing an HTTP `PATCH` request targeting the individual user reference node, passing a `"blocked": true` boolean mutation flag to freeze account interaction instantly.
+
+---
+
+### 📊 Technical Evidence (Administrative Automation Logs)
+
+Below is the structured, chronological walkthrough of the programmatic management application sequence and its execution results:
+
+| Step | Objective | Technical Action / Log State | Visual Reference |
+| --- | --- | --- | --- |
+| **01** | **M2M Descriptor Provisioning** | Initialized the dedicated non-interactive daemon profile inside the application configuration layer. | <img width="1037" height="141" alt="1" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_1" /> |
+| **02** | **Least Privilege API Mapping** | Authorized the client descriptor profile against the Management API, isolating scopes strictly to user metrics. | <img width="842" height="448" alt="2" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_2" /> |
+| **03** | **Environment Vector Staging** | Registered the administrative integration credentials into the decoupled `.env` sandbox registry. | <img width="903" height="205" alt="3" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_3" /> |
+| **04** | **Automation Assembly** | Formulated the Python framework engine processing the back-channel token payloads. | <img width="733" height="554" alt="4" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_4" /> |
+| **05** | **Handshake Auditing & Repair** | Intercepted an `access_denied` error state caused by a naked domain string error on the audience claim parameter. | <img width="897" height="438" alt="5" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_5" /> |
+| **06** | **Programmatic Joiner Success** | Patched the API route URI format; the automation script successfully created the identity, returning a **201 Created** status. | <img width="505" height="641" alt="6" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_6" /> |
+| **07** | **Cloud Registry Auditing** | Inspected the centralized directory database to verify successful ingestion parameters on the new record. | <img width="747" height="510" alt="7" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_7" /> |
+| **08** | **Full End-to-End Lifecycle Execution** | Executed the master code loop: **Phase 1** created the user, and **Phase 2** dynamically grabbed the ID to lock the perimeter instantly. | <img width="1136" height="153" alt="8" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_8" /> |
+
+---
+
+### 📈 Next Steps for this Sandbox
+* [ ] Shift from manual parameter feeding to asynchronous database parsing (e.g., streaming employee entries via CSV inputs).
+* [ ] Implement secure programmatic auditing functions to list all active accounts that haven't authenticated in over 90 days (*Stale Account Discovery*).
 
