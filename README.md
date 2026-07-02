@@ -260,6 +260,9 @@ Below is the structured walkthrough of the authorization enforcement loop and to
 * [ ] Automate user ingestion models (*Joiner/Mover/Leaver Scenarios*) using independent Python administrative tool scripts.
 
 
+Aquí tienes el bloque completo del **Proyecto 05** listo para copiar y pegar, estructurado con la sección del código Python (`provision.py`) debidamente integrada en la fase de ensamblado:
+
+```markdown
 ## 🛡️ Project 05: Programmatic Identity Lifecycle Automation via Machine-to-Machine (M2M) Management APIs
 
 ### 📝 Project Overview
@@ -290,24 +293,110 @@ The administrative framework code was compiled using a two-tier sequential autom
 
 ---
 
+### 💻 Automated Identity Lifecycle Script (`provision.py`)
+
+```python
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DOMAIN = os.getenv("AUTH0_DOMAIN")
+CLIENT_ID = os.getenv("AUTH0_CLIENT_ID")
+CLIENT_SECRET = os.getenv("AUTH0_CLIENT_SECRET")
+AUDIENCE = os.getenv("AUTH0_MANAGEMENT_AUDIENCE")
+
+def get_management_token():
+    url = f"https://{DOMAIN}/oauth/token"
+    payload = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "audience": AUDIENCE,
+        "grant_type": "client_credentials"
+    }
+    headers = {"content-type": "application/json"}
+    
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+    return response.json().get("access_token")
+
+def create_user(token, email, password):
+    url = f"{AUDIENCE}users"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "email": email,
+        "password": password,
+        "connection": "Username-Password-Authentication",
+        "email_verified": False
+    }
+    
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 201:
+        print(f"[+] Phase 1 (Joiner): Successfully provisioned user {email}")
+        return response.json().get("user_id")
+    else:
+        print(f"[-] Failed to create user: {response.text}")
+        return None
+
+def suspend_user(token, user_id):
+    url = f"{AUDIENCE}users/{user_id}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    payload = {"blocked": True}
+    
+    response = requests.patch(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        print(f"[+] Phase 2 (Leaver): Successfully suspended/blocked user ID: {user_id}")
+    else:
+        print(f"[-] Failed to suspend user: {response.text}")
+
+if __name__ == "__main__":
+    print("[*] Initializing M2M Automated Identity Lifecycle...")
+    try:
+        mgmt_token = get_management_token()
+        
+        # Test targets for provisioning and immediate de-provisioning simulation
+        test_email = "cyber.jungle.test@gmail.com"
+        test_pass = "SecureP@ss123!"
+        
+        user_id = create_user(mgmt_token, test_email, test_pass)
+        if user_id:
+            suspend_user(mgmt_token, user_id)
+            
+    except Exception as e:
+        print(f"[!] Critical Error in Automation Loop: {e}")
+
+```
+
+---
+
 ### 📊 Technical Evidence (Administrative Automation Logs)
 
 Below is the structured, chronological walkthrough of the programmatic management application sequence and its execution results:
 
 | Step | Objective | Technical Action / Log State | Visual Reference |
 | --- | --- | --- | --- |
-| **01** | **M2M Descriptor Provisioning** | Initialized the dedicated non-interactive daemon profile inside the application configuration layer. | <img width="1037" height="141" alt="1" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_1" /> |
-| **02** | **Least Privilege API Mapping** | Authorized the client descriptor profile against the Management API, isolating scopes strictly to user metrics. | <img width="842" height="448" alt="2" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_2" /> |
-| **03** | **Environment Vector Staging** | Registered the administrative integration credentials into the decoupled `.env` sandbox registry. | <img width="903" height="205" alt="3" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_3" /> |
-| **04** | **Automation Assembly** | Formulated the Python framework engine processing the back-channel token payloads. | <img width="733" height="554" alt="4" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_4" /> |
-| **05** | **Handshake Auditing & Repair** | Intercepted an `access_denied` error state caused by a naked domain string error on the audience claim parameter. | <img width="897" height="438" alt="5" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_5" /> |
-| **06** | **Programmatic Joiner Success** | Patched the API route URI format; the automation script successfully created the identity, returning a **201 Created** status. | <img width="505" height="641" alt="6" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_6" /> |
-| **07** | **Cloud Registry Auditing** | Inspected the centralized directory database to verify successful ingestion parameters on the new record. | <img width="747" height="510" alt="7" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_7" /> |
-| **08** | **Full End-to-End Lifecycle Execution** | Executed the master code loop: **Phase 1** created the user, and **Phase 2** dynamically grabbed the ID to lock the perimeter instantly. | <img width="1136" height="153" alt="8" src="https://github.com/user-attachments/assets/PON_AQUI_TU_ID_DE_CAPTURA_8" /> |
+| **01** | **M2M Descriptor Provisioning** | Initialized the dedicated non-interactive daemon profile inside the application configuration layer. | <img width="574" height="549" alt="1" src="https://github.com/user-attachments/assets/68889bb9-299e-4b32-a53e-c48cc8a3615f" /> |
+| **02** | **Least Privilege API Mapping** | Authorized the client descriptor profile against the Management API, isolating scopes strictly to user metrics. | <img width="570" height="436" alt="2" src="https://github.com/user-attachments/assets/9f49946e-f430-4947-8947-f82fffd279bd" /> |
+| **03** | **Environment Vector Staging** | Registered the administrative integration credentials into the decoupled `.env` sandbox registry. | <img width="520" height="81" alt="3" src="https://github.com/user-attachments/assets/9e5f24ff-be9b-4dc2-a671-403a5edd2254" /> |
+| **04** | **Automation Assembly** | Formulated the Python framework engine processing the back-channel token payloads. |<img width="761" height="523" alt="4" src="https://github.com/user-attachments/assets/e6d13610-ea4b-4f38-adaf-c80589f6471f" />  |
+| **05** | **Handshake Auditing & Repair** | Intercepted an `access_denied` error state caused by a naked domain string error on the audience claim parameter. | <img width="1021" height="62" alt="5" src="https://github.com/user-attachments/assets/e9d4f740-b0ec-487e-b1c2-80a1df6f4bb4" /> |
+| **06** | **Programmatic Joiner Success** | Patched the API route URI format; the automation script successfully created the identity, returning a **201 Created** status. | <img width="617" height="166" alt="6" src="https://github.com/user-attachments/assets/9ddd12c3-b0ef-4ca3-9c15-359ad09dcfbf" /> |
+| **07** | **Cloud Registry Auditing** | Inspected the centralized directory database to verify successful ingestion parameters on the new record. | <img width="1136" height="225" alt="7" src="https://github.com/user-attachments/assets/13dddeb0-bbbf-41ad-b5ed-c2e5d9a71e03" /> |
+| **08** | **Full End-to-End Lifecycle Execution** | Executed the master code loop: **Phase 1** created the user, and **Phase 2** dynamically grabbed the ID to lock the perimeter instantly. | <img width="656" height="216" alt="8" src="https://github.com/user-attachments/assets/eb1a8ba6-bc68-4faf-ab23-f099e1ca5662" /> |
 
 ---
 
 ### 📈 Next Steps for this Sandbox
+
 * [ ] Shift from manual parameter feeding to asynchronous database parsing (e.g., streaming employee entries via CSV inputs).
 * [ ] Implement secure programmatic auditing functions to list all active accounts that haven't authenticated in over 90 days (*Stale Account Discovery*).
+
+
 
