@@ -260,9 +260,7 @@ Below is the structured walkthrough of the authorization enforcement loop and to
 * [ ] Automate user ingestion models (*Joiner/Mover/Leaver Scenarios*) using independent Python administrative tool scripts.
 
 
-Aquí tienes el bloque completo del **Proyecto 05** listo para copiar y pegar, estructurado con la sección del código Python (`provision.py`) debidamente integrada en la fase de ensamblado:
 
-```markdown
 ## 🛡️ Project 05: Programmatic Identity Lifecycle Automation via Machine-to-Machine (M2M) Management APIs
 
 ### 📝 Project Overview
