@@ -1,7 +1,3 @@
-<img width="1077" height="407" alt="4" src="https://github.com/user-attachments/assets/a8b499c0-66a8-4879-b118-d939732b21cc" />
-<img width="677" height="474" alt="3" src="https://github.com/user-attachments/assets/79ab0048-eb71-4e89-9ca2-9f9a0fbe4696" />
-<img width="733" height="494" alt="1" src="https://github.com/user-attachments/assets/e25b1583-8ce7-4729-894f-8545cb7658dc" />
-<img width="733" height="494" alt="1" src="https://github.com/user-attachments/assets/3cf13a8f-b9f8-4d4f-bae4-219bbe54a82a" />
 # 🚀 KeiLAB: Identity and Access Management (IAM) Sandbox
 
 Welcome to my hands-on Cybersecurity and IAM portfolio. This repository documents my practical implementations of enterprise security architectures, access control models, and identity governance using cloud-native platforms and industry standards.
@@ -437,16 +433,16 @@ Auditing the tenant configuration revealed **Security Defaults** was already act
 
 | Step | Objective | Technical Action / Log State | Visual Reference |
 | --- | --- | --- | --- |
-| **01** | **Identity Provisioning** | Provisioned the `employee` test identity within the organizational directory. |  |
-| **02** | **Directory Audit** | Verified four identities correctly ingested into the tenant (`admin`, owner, `employee`, `support`). |  |
-| **03** | **Group-Based RBAC Engineering** | Provisioned a `support group` Security group as the access-control boundary, in place of direct user-to-role binding. |  |
-| **04** | **Built-in Role Assignment** | Assigned the **Helpdesk Administrator** built-in role to the `support` identity — the functional equivalent of Auth0's custom `soporte-TI` role, constrained by free-tier licensing. |  |
-| **05** | **Login Flow Baseline** | Initialized the sign-in transaction for the `employee` identity. |  |
-| **06** | **Forced Credential Rotation** | Intercepted a mandatory password rotation challenge on first login (auto-generated credential expiry). |  |
-| **07** | **Security Defaults Interception** | Verified Security Defaults autonomously triggered an MFA enrollment challenge — no manual Conditional Access policy was configured. |  |
-| **08** | **MFA Cryptographic Challenge** | Completed a number-matching challenge via Microsoft Authenticator to bind the second factor. |  |
-| **09** | **MFA Enrollment Confirmation** | Verified successful registration of Authenticator as the identity's default sign-in method. |  |
-| **10** | **Least-Privilege Validation** | Confirmed authenticated session state; the `employee` identity correctly reflects **no elevated role assignments**, validating least-privilege baseline. |  |
+| **01** | **Identity Provisioning** | Provisioned the `employee` test identity within the organizational directory. | <img width="1366" height="633" alt="10" src="https://github.com/user-attachments/assets/ac1b2e78-7c35-4bfe-aed4-d914ba09f5fe" /> |
+| **02** | **Directory Audit** | Verified four identities correctly ingested into the tenant (`admin`, owner, `employee`, `support`). | <img width="476" height="525" alt="9" src="https://github.com/user-attachments/assets/156f96c5-a75a-43ef-a97a-a310ccb0edf8" /> |
+| **03** | **Group-Based RBAC Engineering** | Provisioned a `support group` Security group as the access-control boundary, in place of direct user-to-role binding. | <img width="480" height="561" alt="8" src="https://github.com/user-attachments/assets/7b6e558b-a35a-4f0c-b7a4-e0542aaa7344" /> |
+| **04** | **Built-in Role Assignment** | Assigned the **Helpdesk Administrator** built-in role to the `support` identity — the functional equivalent of Auth0's custom `soporte-TI` role, constrained by free-tier licensing. | <img width="473" height="440" alt="7" src="https://github.com/user-attachments/assets/60ada214-26d9-4f36-8498-7a5ff1522eab" /> |
+| **05** | **Login Flow Baseline** | Initialized the sign-in transaction for the `employee` identity. | <img width="479" height="505" alt="6" src="https://github.com/user-attachments/assets/c47deaa2-3261-4116-887e-b0341805175a" /> |
+| **06** | **Forced Credential Rotation** | Intercepted a mandatory password rotation challenge on first login (auto-generated credential expiry). | <img width="463" height="477" alt="5" src="https://github.com/user-attachments/assets/60d9ef0a-bcdf-44f3-aa93-2a771a07e59f" /> |
+| **07** | **Security Defaults Interception** | Verified Security Defaults autonomously triggered an MFA enrollment challenge — no manual Conditional Access policy was configured. | <img width="1077" height="407" alt="4" src="https://github.com/user-attachments/assets/4ccd5534-6ddf-4da6-95c9-df741b77e513" /> |
+| **08** | **MFA Cryptographic Challenge** | Completed a number-matching challenge via Microsoft Authenticator to bind the second factor. | <img width="677" height="474" alt="3" src="https://github.com/user-attachments/assets/c68a9daa-2509-41b0-9e1c-ebb95addf42b" /> |
+| **09** | **MFA Enrollment Confirmation** | Verified successful registration of Authenticator as the identity's default sign-in method. | <img width="483" height="334" alt="2" src="https://github.com/user-attachments/assets/9933c859-db23-4e1c-9d03-d8375c3b0180" /> |
+| **10** | **Least-Privilege Validation** | Confirmed authenticated session state; the `employee` identity correctly reflects **no elevated role assignments**, validating least-privilege baseline. | <img width="733" height="494" alt="1" src="https://github.com/user-attachments/assets/04805367-bfdd-4bd3-8ded-1d4a76befa42" /> |
 
 ---
 
