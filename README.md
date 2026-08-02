@@ -1,3 +1,7 @@
+<img width="1077" height="407" alt="4" src="https://github.com/user-attachments/assets/a8b499c0-66a8-4879-b118-d939732b21cc" />
+<img width="677" height="474" alt="3" src="https://github.com/user-attachments/assets/79ab0048-eb71-4e89-9ca2-9f9a0fbe4696" />
+<img width="733" height="494" alt="1" src="https://github.com/user-attachments/assets/e25b1583-8ce7-4729-894f-8545cb7658dc" />
+<img width="733" height="494" alt="1" src="https://github.com/user-attachments/assets/3cf13a8f-b9f8-4d4f-bae4-219bbe54a82a" />
 # 🚀 KeiLAB: Identity and Access Management (IAM) Sandbox
 
 Welcome to my hands-on Cybersecurity and IAM portfolio. This repository documents my practical implementations of enterprise security architectures, access control models, and identity governance using cloud-native platforms and industry standards.
