@@ -393,8 +393,7 @@ Below is the structured, chronological walkthrough of the programmatic managemen
 
 ### 📈 Next Steps for this Sandbox
 
-* [ ] Shift from manual parameter feeding to asynchronous database parsing (e.g., streaming employee entries via CSV inputs).
-* [ ] Implement secure programmatic auditing functions to list all active accounts that haven't authenticated in over 90 days (*Stale Account Discovery*).
+* [ ] Migrate the established IAM lifecycle model to **Microsoft Entra ID**, validating that identity governance concepts (RBAC, MFA enforcement, federation) are transferable across cloud identity providers.
 
 
 
