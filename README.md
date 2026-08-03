@@ -396,3 +396,68 @@ Below is the structured, chronological walkthrough of the programmatic managemen
 * [ ] Migrate the established IAM lifecycle model to **Microsoft Entra ID**, validating that identity governance concepts (RBAC, MFA enforcement, federation) are transferable across cloud identity providers.
 
 
+## 🛡️ Project 06: Cross-Platform Identity Governance — User Lifecycle & MFA Enforcement in Microsoft Entra ID
+
+### 📝 Project Overview
+This project migrates the IAM lifecycle model established in Projects 01–02 to **Microsoft Entra ID** (formerly Azure Active Directory), Microsoft's enterprise identity platform. The objective was to validate that core IAM governance principles — identity provisioning, group-based RBAC, and MFA enforcement — are **platform-agnostic concepts**, not tied to a single vendor's implementation, while auditing the architectural and licensing differences between Auth0 and Entra ID.
+
+### 🛠️ Core Skills & Concepts Applied
+* **Cross-IdP Identity Governance:** Validating transferability of IAM lifecycle models across Auth0 and Microsoft Entra ID.
+* **Group-Based RBAC:** Engineering access control through Security groups rather than direct per-user role binding.
+* **Built-in Role Architecture:** Auditing platform licensing boundaries between built-in roles (free tier) and fully custom roles (Premium P1/P2 tier).
+* **Security Defaults vs. Conditional Access:** Analyzing tenant-level MFA enforcement mechanisms and their licensing dependencies.
+* **Identity Verification Troubleshooting:** Diagnosing tenant misidentification errors (`AADSTS16000`) between default MSA-linked tenants and provisioned organizational tenants.
+
+---
+
+### 🚀 Implementation Phases
+
+#### 1. Tenant Provisioning & Identity Verification Troubleshooting
+Initial sign-in attempts to the Entra admin center resulted in an `AADSTS16000: interaction_required` error, as the session was being silently authenticated against Microsoft's generic default tenant (`Microsoft Services`) rather than a dedicated organizational tenant. This was resolved by provisioning a real tenant through the **Azure for Students Starter** program, which does not require a formal Conditional Access license to complete.
+
+#### 2. Identity Lifecycle Provisioning (*Joiner Scenario*)
+Three test identities were provisioned representing distinct organizational functions (`admin`, `employee`, `support`), replicating the joiner workflow validated in Project 01.
+
+#### 3. Group-Based RBAC Architecture
+Rather than binding roles directly to individual users, a Security group (`support group`) was provisioned as the access-control boundary. The **Helpdesk Administrator** built-in role was assigned to the `support` identity — the closest functional equivalent to the custom `soporte-TI` role engineered in Auth0, since Entra ID's free/Student tier restricts fully custom role creation to Premium P1/P2 licensing.
+
+#### 4. MFA Enforcement Boundary Testing
+An attempt to configure **Conditional Access** (Entra's granular, condition-based policy engine) returned a licensing block:
+
+"errorCode":"401","details":"No access. This feature requires a subscription to Microsoft Entra ID P1 or P2."
+
+Auditing the tenant configuration revealed **Security Defaults** was already active at the directory level — Microsoft's baseline MFA enforcement mechanism for tenants without premium licensing, requiring no manual policy authoring.
+
+---
+
+### 📊 Technical Evidence (Chronological Implementation & Verification)
+
+| Step | Objective | Technical Action / Log State | Visual Reference |
+| --- | --- | --- | --- |
+| **01** | **Identity Provisioning** | Provisioned the `employee` test identity within the organizational directory. | *(1.PNG)* |
+| **02** | **Directory Audit** | Verified four identities correctly ingested into the tenant (`admin`, owner, `employee`, `support`). | *(2.PNG)* |
+| **03** | **Group-Based RBAC Engineering** | Provisioned a `support group` Security group as the access-control boundary, in place of direct user-to-role binding. | *(3.PNG)* |
+| **04** | **Built-in Role Assignment** | Assigned the **Helpdesk Administrator** built-in role to the `support` identity — the functional equivalent of Auth0's custom `soporte-TI` role, constrained by free-tier licensing. | *(4.PNG)* |
+| **05** | **Login Flow Baseline** | Initialized the sign-in transaction for the `employee` identity. | *(5.PNG)* |
+| **06** | **Forced Credential Rotation** | Intercepted a mandatory password rotation challenge on first login (auto-generated credential expiry). | *(6.PNG)* |
+| **07** | **Security Defaults Interception** | Verified Security Defaults autonomously triggered an MFA enrollment challenge — no manual Conditional Access policy was configured. | *(7.PNG)* |
+| **08** | **MFA Cryptographic Challenge** | Completed a number-matching challenge via Microsoft Authenticator to bind the second factor. | *(8.PNG)* |
+| **09** | **MFA Enrollment Confirmation** | Verified successful registration of Authenticator as the identity's default sign-in method. | *(9.PNG)* |
+| **10** | **Least-Privilege Validation** | Confirmed authenticated session state; the `employee` identity correctly reflects **no elevated role assignments**, validating least-privilege baseline. | *(10.PNG)* |
+
+---
+
+### 🔍 Cross-Platform Architectural Comparison (Auth0 vs. Entra ID)
+
+| Capability | Auth0 (Projects 01–05) | Microsoft Entra ID (Project 06) |
+| --- | --- | --- |
+| Custom Roles | Fully custom role (`soporte-TI`) built from granular permissions | Restricted to built-in roles (e.g., `Helpdesk Administrator`) on free/Student tier; custom roles require P1/P2 |
+| MFA Enforcement | Manually configured policy/rule (TOTP-based) | Automatic via **Security Defaults**; granular **Conditional Access** requires P1/P2 licensing |
+| Access Assignment | Direct user-to-role binding | Group-based role assignment (Security group → role) |
+
+---
+
+### 📈 Next Steps for this Sandbox
+* [ ] Project 07: Federate the existing Flask application for OIDC SSO using **MSAL** and Entra ID as the Identity Provider.
+* [ ] Project 08: Engineer fine-grained authorization via **Entra App Roles** (equivalent to Auth0's OAuth 2.0 scopes).
+* [ ] Project 09: Automate identity lifecycle management (Joiner/Leaver) via **Microsoft Graph API**.
