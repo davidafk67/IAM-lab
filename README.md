@@ -522,3 +522,65 @@ Three sequential errors were isolated and resolved during integration — a real
 ### 📈 Next Steps for this Sandbox
 * [ ] Project 08: Engineer fine-grained authorization via **Entra App Roles** (equivalent to Auth0's OAuth 2.0 scopes).
 * [ ] Project 09: Automate identity lifecycle management (Joiner/Leaver) via **Microsoft Graph API**.
+
+## 🛡️ Project 08: Fine-Grained Authorization via Microsoft Entra App Roles
+
+### 📝 Project Overview
+This project replicates the fine-grained authorization architecture from Project 04 (OAuth 2.0 scopes in Auth0) using **Microsoft Entra App Roles** — the platform-native mechanism for defining and enforcing custom permission boundaries within an application's token claims.
+
+### 🛠️ Core Skills & Concepts Applied
+* **App Role Definition:** Engineering custom authorization boundaries (`Admin`, `Employee`) scoped to a single application registration.
+* **Role Assignment Governance:** Auditing licensing restrictions on group-based role assignment.
+* **Claims-Based Middleware:** Extending Python decorator-based access control to parse the `roles` claim instead of a scope string.
+* **Negative & Positive Access Testing:** Validating both denial (403) and grant paths for distinct identities.
+
+---
+
+### 🚀 Implementation Phases
+
+#### 1. App Role Definition
+Two custom App Roles were defined on the `flask-entra-demo` registration: `Admin` (full administrative access) and `Employee` (baseline access), mirroring the role structure from Project 04.
+
+#### 2. Role Assignment & Licensing Constraint
+While assigning roles via Enterprise Applications, the portal surfaced a licensing restriction:
+> *"Groups are not available for assignment due to your Active Directory plan level. You can assign individual users to the application."*
+
+This confirms a pattern already observed in Project 06: group-based role assignment (the IAM best practice) requires Entra ID P1/P2 licensing. On the free/Student tier, roles must be assigned directly to individual users.
+
+#### 3. Claims-Based Middleware
+A dedicated decorator (`requires_entra_role`) was engineered to parse the `roles` claim from the Entra ID token — structurally different from Auth0's space-separated `scope` string, Entra returns roles as a list.
+
+#### 4. Access Control Verification
+Both identities were tested against the protected `/entra-admin` endpoint to validate enforcement in both directions (deny and grant).
+
+---
+
+### 📊 Technical Evidence (Chronological Implementation & Verification)
+
+| Step | Objective | Technical Action / Log State | Visual Reference |
+| --- | --- | --- | --- |
+| **01** | **App Role Engineering** | Defined the `Admin` custom role with a description and enabled state on the app registration. | <img width="1070" height="594" alt="1" src="https://github.com/user-attachments/assets/9fbae7df-3aa9-4833-9e8f-174733f961a6" /> |
+| **02** | **Role Registry Audit** | Verified both `Admin` and `Employee` roles correctly registered with distinct values. | <img width="626" height="218" alt="2" src="https://github.com/user-attachments/assets/89a8e426-2a77-42f4-9042-a4c1e954c863" /> |
+| **03** | **Assignment Licensing Constraint** | Identified that group-based assignment is restricted on the free tier; roles were instead assigned per individual user. | <img width="897" height="584" alt="3" src="https://github.com/user-attachments/assets/7836f937-64b7-40ef-85ad-093f9db54fff" /> |
+| **04** | **Unprivileged Authentication** | Completed the credential challenge for the `employee` identity. | <img width="512" height="382" alt="4" src="https://github.com/user-attachments/assets/18c7d642-9c54-4511-96eb-83fb38613b0b" /> |
+| **05** | **Baseline Access Confirmation** | Verified the `employee` identity successfully reaches the standard `/entra-profile` endpoint. | <img width="457" height="176" alt="5" src="https://github.com/user-attachments/assets/86d32b05-bac7-434a-9b11-6b1d8b3fde7e" /> |
+| **06** | **Perimeter Enforcement Test** | The `employee` identity attempted to access `/entra-admin`; middleware correctly intercepted the request, returning **HTTP 403 Forbidden**. | <img width="784" height="191" alt="6" src="https://github.com/user-attachments/assets/42cfbe73-ee45-4582-9c75-8a1d5a571544" /> |
+| **07** | **Privileged Authentication** | Completed the credential challenge (with forced password rotation) for the `admin` identity. | <img width="418" height="457" alt="7" src="https://github.com/user-attachments/assets/9d80b288-0413-4c36-b1ef-403d21364fef" /> |
+| **08** | **Baseline Access Confirmation (Admin)** | Verified the `admin` identity successfully reaches `/entra-profile`. | <img width="424" height="175" alt="8" src="https://github.com/user-attachments/assets/834e363d-a465-45aa-b23c-8a00b7317b24" /> |
+| **09** | **Access Resolution Validation** | The `admin` identity successfully accessed `/entra-admin`; middleware validated the `Admin` role claim and granted entry. | <img width="631" height="207" alt="9" src="https://github.com/user-attachments/assets/47ac0520-6b67-44cb-8b59-857f4d19a1b2" />
+ |
+
+---
+
+### 🔍 Cross-Platform Architectural Comparison (Auth0 Scopes vs. Entra App Roles)
+
+| Capability | Auth0 (Project 04) | Microsoft Entra ID (Project 08) |
+| --- | --- | --- |
+| Permission Model | OAuth 2.0 Scopes (space-separated string) | App Roles (list-based claim) |
+| Assignment Granularity | Role → user (direct) | User or group (group requires P1/P2 license) |
+| Middleware Parsing | `scope.split()` string check | `roles` list membership check |
+
+---
+
+### 📈 Next Steps for this Sandbox
+* [ ] Project 09 (final): Automate identity lifecycle management (Joiner/Leaver) via **Microsoft Graph API** — completing the full Auth0 ↔ Entra ID mirror.
