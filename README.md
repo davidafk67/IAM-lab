@@ -461,3 +461,64 @@ Auditing the tenant configuration revealed **Security Defaults** was already act
 * [ ] Project 07: Federate the existing Flask application for OIDC SSO using **MSAL** and Entra ID as the Identity Provider.
 * [ ] Project 08: Engineer fine-grained authorization via **Entra App Roles** (equivalent to Auth0's OAuth 2.0 scopes).
 * [ ] Project 09: Automate identity lifecycle management (Joiner/Leaver) via **Microsoft Graph API**.
+
+## 🛡️ Project 07: Cross-Platform SSO Federation — OIDC via MSAL & Microsoft Entra ID
+
+### 📝 Project Overview
+This project extends the OIDC federation architecture established in Project 03 (Auth0) to **Microsoft Entra ID**, using Microsoft's official **MSAL (Microsoft Authentication Library)** SDK instead of `authlib`. The existing Flask application was extended — not replaced — with dedicated Entra-specific routes, allowing both identity providers to coexist in the same codebase for direct architectural comparison.
+
+### 🛠️ Core Skills & Concepts Applied
+* **Multi-IdP Application Architecture:** Extending an existing OIDC integration to support a second Identity Provider without breaking the original flow.
+* **MSAL Confidential Client Flow:** Implementing the OAuth 2.0 Authorization Code flow via `ConfidentialClientApplication`.
+* **Tenant-Scoped Authority Configuration:** Understanding the `authority` URL structure and its dependency on a specific Tenant ID.
+* **Redirect URI Governance:** Diagnosing and resolving strict URI-matching enforcement between the Identity Provider and the registered application.
+* **OIDC Consent Flow Analysis:** Auditing Microsoft's explicit permission-consent screen as the platform's transparency mechanism for delegated access.
+
+---
+
+### 🚀 Implementation Phases
+
+#### 1. Application Registration
+A new app registration (`flask-entra-demo`) was provisioned as a single-tenant application, with an initial redirect URI targeting the application's local runtime interface.
+
+#### 2. MSAL Integration & Environment Configuration
+The Flask application was extended with a parallel authentication path (`/login-entra`, `/callback-entra`, `/entra-profile`) built on MSAL, isolated from the existing Auth0 routes to preserve the integrity of previously documented projects.
+
+#### 3. Troubleshooting & Handshake Resolution
+Three sequential errors were isolated and resolved during integration — a realistic troubleshooting arc typical of first-time IdP migrations:
+
+* **Malformed Authority URL (`ValueError`):** MSAL requires the `authority` parameter to be a fully-qualified URL containing the tenant segment (`https://login.microsoftonline.com/{tenant_id}`), not the bare hostname. Resolved by appending the tenant GUID to the `ENTRA_AUTHORITY` environment variable.
+* **Redirect URI Mismatch (`AADSTS50011`):** The application initially sent a redirect URI (`/callback`) that conflicted with Project 03's Auth0 callback. Resolved by registering a distinct, dedicated URI (`/callback-entra`) in both the Entra app registration and the local `.env`, ensuring exact string-level parity between both configurations.
+* **Missing Import (`NameError`):** The `request` object from Flask was not imported when extending the codebase with the new MSAL routes — corrected by updating the top-level import statement.
+
+---
+
+### 📊 Technical Evidence (Chronological Implementation & Verification)
+
+| Step | Objective | Technical Action / Log State | Visual Reference |
+| --- | --- | --- | --- |
+| **01** | **Application Registration** | Provisioned `flask-entra-demo` as a single-tenant application with an initial Web redirect URI. | <img width="1045" height="586" alt="1" src="https://github.com/user-attachments/assets/a2798dca-5b06-4eba-8538-648c44abf05f" /> |
+| **02** | **Client Secret Provisioning** | Generated a confidential client secret to support the Authorization Code flow's back-channel token exchange. | <img width="1082" height="589" alt="2" src="https://github.com/user-attachments/assets/1d264a87-a890-4088-a2a0-329c95872f69" /> |
+| **03** | **Authority Misconfiguration (Audit)** | Intercepted a `ValueError` caused by an incomplete `authority` URL missing the tenant segment. | <img width="704" height="147" alt="3" src="https://github.com/user-attachments/assets/50ecd7c6-5a76-454c-824b-29b6ad347f5a" /> |
+| **04** | **IdP Redirection** | Verified successful redirection to Microsoft's hosted login surface after correcting the authority configuration. | <img width="1366" height="679" alt="4" src="https://github.com/user-attachments/assets/553e42ab-e8fc-48b6-b068-4af3d72566f3" /> |
+| **05** | **Credential Challenge** | Completed the password challenge for the `employee` test identity. | <img width="1366" height="654" alt="5" src="https://github.com/user-attachments/assets/88633202-85f3-4dfe-bfa9-cc0d64f6e696" /> |
+| **06** | **Delegated Consent Screen** | Audited Microsoft's explicit permission-consent screen, disclosing the exact delegated scopes (`Sign you in and read your profile`) requested by the unpublished application. | <img width="1366" height="705" alt="6" src="https://github.com/user-attachments/assets/836a34a7-8204-4e00-addf-dc1a70f463d6" /> |
+| **07** | **Redirect URI Enforcement (Audit)** | Intercepted an `AADSTS50011` error caused by a redirect URI mismatch between the `.env` and the Entra app registration. | <img width="469" height="516" alt="7" src="https://github.com/user-attachments/assets/cf8f45d7-0e38-44b4-94b3-5af87bb1905e" /> |
+| **08** | **Federation Success** | Verified the full OIDC round-trip: authenticated session correctly rendering the `employee` identity's claims on the `/entra-profile` endpoint. | <img width="643" height="628" alt="8" src="https://github.com/user-attachments/assets/069f7c04-f5ee-4f59-ba4b-cd83377533cc" /> |
+
+---
+
+### 🔍 Cross-Platform Architectural Comparison (Auth0 vs. Entra ID SSO)
+
+| Capability | Auth0 (Project 03) | Microsoft Entra ID (Project 07) |
+| --- | --- | --- |
+| SDK | `authlib` | `msal` (Microsoft Authentication Library) |
+| Authority Configuration | Domain-based (`{domain}/.well-known/openid-configuration`) | Tenant-scoped authority URL (`login.microsoftonline.com/{tenant_id}`) |
+| Consent UX | Implicit within login flow | Explicit permission-consent screen disclosing requested scopes |
+| Redirect URI Enforcement | Standard match | Strict exact-match enforcement (`AADSTS50011` on mismatch) |
+
+---
+
+### 📈 Next Steps for this Sandbox
+* [ ] Project 08: Engineer fine-grained authorization via **Entra App Roles** (equivalent to Auth0's OAuth 2.0 scopes).
+* [ ] Project 09: Automate identity lifecycle management (Joiner/Leaver) via **Microsoft Graph API**.
