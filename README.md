@@ -584,3 +584,126 @@ Both identities were tested against the protected `/entra-admin` endpoint to val
 
 ### 📈 Next Steps for this Sandbox
 * [ ] Project 09 (final): Automate identity lifecycle management (Joiner/Leaver) via **Microsoft Graph API** — completing the full Auth0 ↔ Entra ID mirror.
+
+## 🛡️ Project 09: Programmatic Identity Lifecycle Automation via Microsoft Graph API
+
+### 📝 Project Overview
+This final project in the Entra ID track replicates the M2M automation architecture from Project 05 (Auth0 Management API), using **Microsoft Graph API** as the backend. A dedicated daemon application authenticates via the OAuth 2.0 **Client Credentials Grant** to programmatically execute the full Joiner/Leaver identity lifecycle — completing the full mirror of all five Auth0 projects on the Entra ID platform.
+
+### 🛠️ Core Skills & Concepts Applied
+* **Microsoft Graph API Integration:** Interfacing directly with Microsoft's unified API for identity and directory operations.
+* **Application Permissions vs. Delegated Permissions:** Configuring app-only access (no signed-in user) for daemon-style automation.
+* **Admin Consent Governance:** Understanding Microsoft's centralized admin-approval model for application-level API access.
+* **Diagnostic Debugging:** Isolating an authentication failure down to credential-loading order and secret value confusion.
+
+---
+
+### 🚀 Implementation Phases
+
+#### 1. Daemon Application Registration & Least-Privilege Scoping
+A dedicated non-interactive application (`entra-admin-tool`) was registered, isolated from the interactive `flask-entra-demo` app used in Projects 07-08. **Application permissions** (not delegated) were assigned — specifically `User.ReadWrite.All` — reflecting that this integration acts autonomously, with no signed-in user behind it.
+
+#### 2. Admin Consent Governance
+Unlike Auth0's model (where authorizing the M2M client directly against the Resource Server was sufficient), Microsoft Graph requires an explicit **"Grant admin consent"** action performed by a directory administrator before the application can exercise its assigned permissions — a centralized governance checkpoint not present in the Auth0 architecture.
+
+#### 3. Troubleshooting: Authentication Failure Diagnosis
+An initial `401 Unauthorized` error at the token endpoint was systematically diagnosed:
+* Verified environment variables were loading correctly (ruled out a missing `.env` file issue, similar to Project 03's `.env.example` bug).
+* Isolated the root cause to a **Client Secret misidentification** — the Entra portal briefly displays the real secret **Value** only once at creation time; copying the always-visible **Secret ID** instead (a common mistake) causes silent authentication failure with a generic 401, rather than a descriptive error.
+* Added temporary diagnostic logging to inspect the raw token endpoint response before resolving.
+
+#### 4. Full Lifecycle Automation Execution
+With valid credentials in place, the script executed both phases successfully in a single automated run: user creation (Joiner) followed immediately by account disablement (Leaver).
+
+---
+
+### 💻 Automated Identity Lifecycle Script (`provision_entra.py`)
+
+```python
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TENANT_ID = os.getenv("GRAPH_TENANT_ID")
+CLIENT_ID = os.getenv("GRAPH_CLIENT_ID")
+CLIENT_SECRET = os.getenv("GRAPH_CLIENT_SECRET")
+
+GRAPH_ENDPOINT = "https://graph.microsoft.com/v1.0"
+TOKEN_URL = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token"
+
+def get_graph_token():
+    payload = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "scope": "https://graph.microsoft.com/.default",
+        "grant_type": "client_credentials"
+    }
+    response = requests.post(TOKEN_URL, data=payload)
+    response.raise_for_status()
+    return response.json().get("access_token")
+
+def create_user(token, display_name, mail_nickname, domain, password):
+    url = f"{GRAPH_ENDPOINT}/users"
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    payload = {
+        "accountEnabled": True,
+        "displayName": display_name,
+        "mailNickname": mail_nickname,
+        "userPrincipalName": f"{mail_nickname}@{domain}",
+        "passwordProfile": {"forceChangePasswordNextSignIn": True, "password": password}
+    }
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 201:
+        print(f"[+] Phase 1 (Joiner): Successfully provisioned user {mail_nickname}@{domain}")
+        return response.json().get("id")
+    print(f"[-] Failed to create user: {response.text}")
+    return None
+
+def disable_user(token, user_id):
+    url = f"{GRAPH_ENDPOINT}/users/{user_id}"
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    response = requests.patch(url, json={"accountEnabled": False}, headers=headers)
+    if response.status_code == 204:
+        print(f"[+] Phase 2 (Leaver): Successfully disabled user ID: {user_id}")
+    else:
+        print(f"[-] Failed to disable user: {response.text}")
+
+if __name__ == "__main__":
+    print("[*] Initializing Graph API Automated Identity Lifecycle...")
+    try:
+        token = get_graph_token()
+        user_id = create_user(token, "Graph Test User", "graphtest", "milechitacgmail.onmicrosoft.com", "SecureP@ss123!")
+        if user_id:
+            disable_user(token, user_id)
+    except Exception as e:
+        print(f"[!] Critical Error in Automation Loop: {e}")
+```
+
+---
+
+### 📊 Technical Evidence (Chronological Implementation & Verification)
+
+| Step | Objective | Technical Action / Log State | Visual Reference |
+| --- | --- | --- | --- |
+| **01** | **Daemon App Registration** | Registered `entra-admin-tool` as a single-tenant, non-interactive application. | <img width="594" height="588" alt="1" src="https://github.com/user-attachments/assets/3dcf3100-619a-425b-a5bf-e1a7cd88ebab" /> |
+| **02** | **Credential Provisioning** | Initiated client secret creation for the daemon application. | <img width="1078" height="592" alt="2" src="https://github.com/user-attachments/assets/e9fdae6c-225b-4ef5-bf5d-80ba0b07771a" /> |
+| **03** | **Least-Privilege API Scoping** | Assigned the `User.ReadWrite.All` **Application permission** (not delegated) to support unattended operation. | <img width="521" height="302" alt="3" src="https://github.com/user-attachments/assets/06cc3abf-e05b-4e09-83a0-d1ceff02d592" /> |
+| **04** | **Full Lifecycle Execution** | Executed the automation script end-to-end: user provisioned, then immediately disabled — validating both Joiner and Leaver phases in a single run. | <img width="666" height="50" alt="4" src="https://github.com/user-attachments/assets/312edf34-72db-440d-8446-34ef0f6d711c" /> |
+
+---
+
+### 🔍 Cross-Platform Architectural Comparison (Auth0 Management API vs. Microsoft Graph API)
+
+| Capability | Auth0 (Project 05) | Microsoft Graph API (Project 09) |
+| --- | --- | --- |
+| Deprovisioning Mechanism | `"blocked": true` (block account) | `"accountEnabled": false` (disable account) |
+| Authorization Model | Direct client-to-Resource-Server authorization | Application permissions + centralized **admin consent** requirement |
+| Token Endpoint | Auth0 tenant-specific (`/oauth/token`) | Microsoft identity platform v2.0 (`/oauth2/v2.0/token`) |
+
+---
+
+## ✅ Entra ID Track Complete
+
+With Project 09, all five Auth0-based IAM projects (identity lifecycle, MFA, SSO/OIDC, fine-grained authorization, M2M automation) have been fully mirrored on Microsoft Entra ID — validating that core IAM governance principles transfer across cloud identity platforms, independent of vendor-specific tooling.
