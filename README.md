@@ -674,7 +674,7 @@ if __name__ == "__main__":
     print("[*] Initializing Graph API Automated Identity Lifecycle...")
     try:
         token = get_graph_token()
-        user_id = create_user(token, "Graph Test User", "graphtest", "milechitacgmail.onmicrosoft.com", "SecureP@ss123!")
+        user_id = create_user(token, "Graph Test User", "graphtest", "*******.onmicrosoft.com", "SecureP@ss123!")
         if user_id:
             disable_user(token, user_id)
     except Exception as e:
